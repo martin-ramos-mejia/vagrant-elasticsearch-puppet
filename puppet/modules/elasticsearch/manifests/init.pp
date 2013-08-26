@@ -1,12 +1,21 @@
-class elasticsearch($version = "0.19.10", $seeds = "") {
+class elasticsearch($version = "0.90.3", $seeds = "") {
+
+    exec { "apt-update":
+      command     => "/usr/bin/apt-get update",
+    }
 
 	Exec { path => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ] }
 
 	$tmpDir = "/tmp/elasticsearch"
 
-	package { 'java-1.6.0-openjdk': 
+	Exec["apt-update"] ->
+	package { 'openjdk-6-jre': 
 	  ensure => present,
 	}
+	->
+	package { 'curl':
+	  ensure => present,
+	}	
 	->
 	package { 'unzip':
 	  ensure => present,
@@ -91,10 +100,6 @@ class elasticsearch($version = "0.19.10", $seeds = "") {
 	->
 	service { 'elasticsearch':
 	  ensure => running,
-	}
-	->
-	service { 'iptables': 
-	  ensure => stopped,      #HACK!  use the puppet firewall module to manage iptables 
 	}
 
 }
